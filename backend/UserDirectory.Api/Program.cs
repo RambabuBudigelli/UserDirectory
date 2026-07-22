@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using UserDirectory.Api.Data;
+using UserDirectory.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);

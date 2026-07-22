@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using UserDirectory.Api.Data;
 using UserDirectory.Api.DTOs;
 using UserDirectory.Api.Models;
+using UserDirectory.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 
 namespace UserDirectory.Api.Controllers;
