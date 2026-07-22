@@ -11,11 +11,11 @@ namespace UserDirectory.Api.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
-    private readonly AppDbContext _context;
+    private readonly IUserService _userService;
 
-    public UsersController(AppDbContext context)
+    public UsersController(IUserService userService)
     {
-        _context = context;
+        _userService = userService;
     }
 
     // GET: api/users
@@ -23,18 +23,7 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
-        var users = await _context.Users
-            .Select(user => new UserDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Age = user.Age,
-                City = user.City,
-                State = user.State,
-                Pincode = user.Pincode
-            })
-            .ToListAsync();
-
+        var users = await _userService.GetAllAsync();
         return Ok(users);
     }
 
@@ -43,25 +32,10 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetUser(int id)
     {
-        var user = await _context.Users
-            .Where(user => user.Id == id)
-            .Select(user => new UserDto
-            {
-                Id = user.Id,
-                Name = user.Name,
-                Age = user.Age,
-                City = user.City,
-                State = user.State,
-                Pincode = user.Pincode
-            })
-            .FirstOrDefaultAsync();
-
+        var user = await _userService.GetByIdAsync(id);
         if (user == null)
         {
-            return NotFound(new
-            {
-                Message = $"User with ID {id} was not found."
-            });
+            return NotFound(new { Message = $"User with ID {id} was not found." });
         }
 
         return Ok(user);
@@ -77,29 +51,8 @@ public class UsersController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var user = new User
-        {
-            Name = dto.Name,
-            Age = dto.Age,
-            City = dto.City,
-            State = dto.State,
-            Pincode = dto.Pincode
-        };
-
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
-        var result = new UserDto
-        {
-            Id = user.Id,
-            Name = user.Name,
-            Age = user.Age,
-            City = user.City,
-            State = user.State,
-            Pincode = user.Pincode
-        };
-
-        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, result);
+        var created = await _userService.CreateAsync(dto);
+        return CreatedAtAction(nameof(GetUser), new { id = created.Id }, created);
     }
 
     // PUT: api/users/{id}
@@ -112,23 +65,11 @@ public class UsersController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var user = await _context.Users.FindAsync(id);
-
-        if (user == null)
+        var updated = await _userService.UpdateAsync(id, dto);
+        if (!updated)
         {
-            return NotFound(new
-            {
-                Message = $"User with ID {id} was not found."
-            });
+            return NotFound(new { Message = $"User with ID {id} was not found." });
         }
-
-        user.Name = dto.Name;
-        user.Age = dto.Age;
-        user.City = dto.City;
-        user.State = dto.State;
-        user.Pincode = dto.Pincode;
-
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }
@@ -138,18 +79,11 @@ public class UsersController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteUser(int id)
     {
-        var user = await _context.Users.FindAsync(id);
-
-        if (user == null)
+        var deleted = await _userService.DeleteAsync(id);
+        if (!deleted)
         {
-            return NotFound(new
-            {
-                Message = $"User with ID {id} was not found."
-            });
+            return NotFound(new { Message = $"User with ID {id} was not found." });
         }
-
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
 
         return NoContent();
     }

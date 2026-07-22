@@ -36,6 +36,9 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Register application services
+builder.Services.AddScoped<IUserService, UserService>();
+
 // Auth0 configuration (read from appsettings or environment variables)
 var auth0Domain = configuration["Auth0:Domain"];
 var auth0Audience = configuration["Auth0:Audience"];
@@ -68,6 +71,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowReactApp");
+
+// Global exception handling middleware
+app.UseMiddleware<UserDirectory.Api.Middleware.ExceptionHandlingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
