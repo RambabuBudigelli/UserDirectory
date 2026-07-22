@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 import { createUser } from "../services/userService";
 
 interface FormData {
@@ -20,6 +21,13 @@ interface FormErrors {
 
 function AddUser() {
   const navigate = useNavigate();
+
+  const {
+    isAuthenticated,
+    isLoading: authLoading,
+    getAccessTokenSilently,
+    loginWithRedirect,
+  } = useAuth0();
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -52,7 +60,6 @@ function AddUser() {
   function validate(): FormErrors {
     const newErrors: FormErrors = {};
 
-    // Name validation
     if (!formData.name.trim()) {
       newErrors.name = "Name is required.";
     } else if (
@@ -63,7 +70,6 @@ function AddUser() {
         "Name must be between 2 and 100 characters.";
     }
 
-    // Age validation
     if (!formData.age) {
       newErrors.age = "Age is required.";
     } else {
@@ -75,17 +81,14 @@ function AddUser() {
       }
     }
 
-    // City validation
     if (!formData.city.trim()) {
       newErrors.city = "City is required.";
     }
 
-    // State validation
     if (!formData.state.trim()) {
       newErrors.state = "State is required.";
     }
 
-    // Pincode validation
     if (!formData.pincode.trim()) {
       newErrors.pincode = "Pincode is required.";
     } else if (
@@ -111,21 +114,36 @@ function AddUser() {
       return;
     }
 
+    if (!isAuthenticated) {
+      await loginWithRedirect();
+      return;
+    }
+
     try {
       setLoading(true);
       setApiError("");
 
-      await createUser({
-        name: formData.name.trim(),
-        age: Number(formData.age),
-        city: formData.city.trim(),
-        state: formData.state.trim(),
-        pincode: formData.pincode.trim(),
-      });
+      const accessToken =
+        await getAccessTokenSilently();
 
-      // Redirect to List after successful creation
+      await createUser(
+        {
+          name: formData.name.trim(),
+          age: Number(formData.age),
+          city: formData.city.trim(),
+          state: formData.state.trim(),
+          pincode: formData.pincode.trim(),
+        },
+        accessToken
+      );
+
       navigate("/list");
     } catch (error) {
+      console.error(
+        "Create user error:",
+        error
+      );
+
       setApiError(
         "Unable to create user. Please try again."
       );
@@ -134,9 +152,23 @@ function AddUser() {
     }
   }
 
+  if (authLoading) {
+    return (
+      <div className="page-container">
+        <p>Checking authentication...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="page-container">
       <h1>Add User</h1>
+
+      {!isAuthenticated && (
+        <div className="error">
+          Please log in before adding a user.
+        </div>
+      )}
 
       {apiError && (
         <div className="error">
@@ -145,117 +177,139 @@ function AddUser() {
       )}
 
       <form onSubmit={handleSubmit}>
+
         {/* Name */}
         <div className="form-group">
           <label htmlFor="name">
-            Name
+            Name:
           </label>
 
-          <input
-            id="name"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleChange}
-          />
+          <div className="input-container">
+            <input
+              id="name"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter name"
+            />
 
-          {errors.name && (
-            <span className="field-error">
-              {errors.name}
-            </span>
-          )}
+            {errors.name && (
+              <span className="field-error">
+                {errors.name}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Age */}
         <div className="form-group">
           <label htmlFor="age">
-            Age
+            Age:
           </label>
 
-          <input
-            id="age"
-            name="age"
-            type="number"
-            value={formData.age}
-            onChange={handleChange}
-          />
+          <div className="input-container">
+            <input
+              id="age"
+              name="age"
+              type="number"
+              value={formData.age}
+              onChange={handleChange}
+              placeholder="Enter age"
+            />
 
-          {errors.age && (
-            <span className="field-error">
-              {errors.age}
-            </span>
-          )}
+            {errors.age && (
+              <span className="field-error">
+                {errors.age}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* City */}
         <div className="form-group">
           <label htmlFor="city">
-            City
+            City:
           </label>
 
-          <input
-            id="city"
-            name="city"
-            type="text"
-            value={formData.city}
-            onChange={handleChange}
-          />
+          <div className="input-container">
+            <input
+              id="city"
+              name="city"
+              type="text"
+              value={formData.city}
+              onChange={handleChange}
+              placeholder="Enter city"
+            />
 
-          {errors.city && (
-            <span className="field-error">
-              {errors.city}
-            </span>
-          )}
+            {errors.city && (
+              <span className="field-error">
+                {errors.city}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* State */}
         <div className="form-group">
           <label htmlFor="state">
-            State
+            State:
           </label>
 
-          <input
-            id="state"
-            name="state"
-            type="text"
-            value={formData.state}
-            onChange={handleChange}
-          />
+          <div className="input-container">
+            <input
+              id="state"
+              name="state"
+              type="text"
+              value={formData.state}
+              onChange={handleChange}
+              placeholder="Enter state"
+            />
 
-          {errors.state && (
-            <span className="field-error">
-              {errors.state}
-            </span>
-          )}
+            {errors.state && (
+              <span className="field-error">
+                {errors.state}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Pincode */}
         <div className="form-group">
           <label htmlFor="pincode">
-            Pincode
+            Pincode:
           </label>
 
-          <input
-            id="pincode"
-            name="pincode"
-            type="text"
-            value={formData.pincode}
-            onChange={handleChange}
-          />
+          <div className="input-container">
+            <input
+              id="pincode"
+              name="pincode"
+              type="text"
+              value={formData.pincode}
+              onChange={handleChange}
+              placeholder="Enter pincode"
+            />
 
-          {errors.pincode && (
-            <span className="field-error">
-              {errors.pincode}
-            </span>
-          )}
+            {errors.pincode && (
+              <span className="field-error">
+                {errors.pincode}
+              </span>
+            )}
+          </div>
         </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? "Creating..." : "Add User"}
-        </button>
+        {/* Submit Button */}
+        <div className="form-actions">
+          <button
+            type="submit"
+            disabled={loading}
+          >
+            {loading
+              ? "Creating..."
+              : "Add User"}
+          </button>
+        </div>
+
       </form>
     </div>
   );

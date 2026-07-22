@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using UserDirectory.Api.Data;
 using UserDirectory.Api.DTOs;
 using UserDirectory.Api.Models;
-
+using Microsoft.AspNetCore.Authorization;
 namespace UserDirectory.Api.Controllers;
 
 [ApiController]
@@ -18,9 +18,10 @@ public class UsersController : ControllerBase
     }
 
     // GET: api/users
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
-    {
+   [AllowAnonymous]
+[HttpGet]
+public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
+{
         var users = await _context.Users
             .Select(user => new UserDto
             {
@@ -37,9 +38,10 @@ public class UsersController : ControllerBase
     }
 
     // GET: api/users/{id}
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<UserDto>> GetUser(int id)
-    {
+   [AllowAnonymous]
+[HttpGet("{id}")]
+public async Task<ActionResult<UserDto>> GetUser(int id)
+{
         var user = await _context.Users
             .Where(user => user.Id == id)
             .Select(user => new UserDto
@@ -65,9 +67,10 @@ public class UsersController : ControllerBase
     }
 
     // POST: api/users
-    [HttpPost]
-    public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto dto)
-    {
+    [Authorize]
+[HttpPost]
+public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto dto)
+{
         var user = new User
         {
             Name = dto.Name,
@@ -98,10 +101,11 @@ public class UsersController : ControllerBase
     }
 
     // PUT: api/users/{id}
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> UpdateUser(
-        int id,
-        UpdateUserDto dto)
+    [Authorize]
+[HttpPut("{id}")]
+public async Task<ActionResult<UserDto>> UpdateUser(
+    int id,
+    UpdateUserDto dto)
     {
         var user = await _context.Users.FindAsync(id);
 
@@ -125,9 +129,10 @@ public class UsersController : ControllerBase
     }
 
     // DELETE: api/users/{id}
-    [HttpDelete("{id:int}")]
-    public async Task<IActionResult> DeleteUser(int id)
-    {
+    [Authorize]
+[HttpDelete("{id}")]
+public async Task<IActionResult> DeleteUser(int id)
+{
         var user = await _context.Users.FindAsync(id);
 
         if (user == null)

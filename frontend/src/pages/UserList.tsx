@@ -52,38 +52,34 @@ function UserList() {
 
   return (
     <div className="page-container">
-      <h1>User List</h1>
+  <h1>User List</h1>
 
-      {users.length === 0 ? (
-        <div className="empty-state">
-          No users found.
-        </div>
-      ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Age</th>
-              <th>City</th>
-              <th>State</th>
-              <th>Pincode</th>
-            </tr>
-          </thead>
+  <div className="table-container">
+    <table className="user-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>City</th>
+          <th>State</th>
+          <th>Pincode</th>
+        </tr>
+      </thead>
 
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.name}</td>
-                <td>{user.age}</td>
-                <td>{user.city}</td>
-                <td>{user.state}</td>
-                <td>{user.pincode}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+      <tbody>
+        {users.map((user) => (
+          <tr key={user.id}>
+            <td>{user.name}</td>
+            <td>{user.age}</td>
+            <td>{user.city}</td>
+            <td>{user.state}</td>
+            <td>{user.pincode}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
   );
 }
 
