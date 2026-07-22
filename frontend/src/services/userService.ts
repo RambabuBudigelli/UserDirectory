@@ -1,6 +1,6 @@
-import type { User, CreateUserRequest } from "../types/User";
+﻿import type { User, CreateUserRequest } from "../types/User";
 
-const API_URL = "http://localhost:5047/api/Users";
+const API_URL = (import.meta.env.VITE_API_URL as string) || "http://localhost:5047/api/Users";
 
 export async function getUsers(): Promise<User[]> {
   const response = await fetch(API_URL);

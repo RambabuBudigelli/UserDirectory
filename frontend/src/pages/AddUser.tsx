@@ -137,7 +137,7 @@ function AddUser() {
         accessToken
       );
 
-      navigate("/list");
+      navigate("/");
     } catch (error) {
       console.error(
         "Create user error:",

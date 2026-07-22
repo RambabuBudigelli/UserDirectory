@@ -6,15 +6,23 @@ import App from "./App.tsx";
 import "./index.css";
 import "./App.css";
 
+const domain = import.meta.env.VITE_AUTH0_DOMAIN as string | undefined;
+const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID as string | undefined;
+const audience = import.meta.env.VITE_AUTH0_AUDIENCE as string | undefined;
+
+if (!domain || !clientId) {
+  console.error("Missing Auth0 configuration. Set VITE_AUTH0_DOMAIN and VITE_AUTH0_CLIENT_ID in your environment.");
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <BrowserRouter>
       <Auth0Provider
-        domain="dev-ennfeex6067qq830.us.auth0.com"
-        clientId="oQhwS4edLquoqm7374bn5jt8J80MLWGJ"
+        domain={domain}
+        clientId={clientId}
         authorizationParams={{
           redirect_uri: window.location.origin,
-          //audience: "https://userdirectory-api",
+          audience,
         }}
       >
         <App />

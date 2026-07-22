@@ -4,6 +4,7 @@ using UserDirectory.Api.Data;
 using UserDirectory.Api.DTOs;
 using UserDirectory.Api.Models;
 using Microsoft.AspNetCore.Authorization;
+
 namespace UserDirectory.Api.Controllers;
 
 [ApiController]
@@ -18,10 +19,10 @@ public class UsersController : ControllerBase
     }
 
     // GET: api/users
-   [AllowAnonymous]
-[HttpGet]
-public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
-{
+    [AllowAnonymous]
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
+    {
         var users = await _context.Users
             .Select(user => new UserDto
             {
@@ -38,10 +39,10 @@ public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     }
 
     // GET: api/users/{id}
-   [AllowAnonymous]
-[HttpGet("{id}")]
-public async Task<ActionResult<UserDto>> GetUser(int id)
-{
+    [AllowAnonymous]
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserDto>> GetUser(int id)
+    {
         var user = await _context.Users
             .Where(user => user.Id == id)
             .Select(user => new UserDto
@@ -59,7 +60,7 @@ public async Task<ActionResult<UserDto>> GetUser(int id)
         {
             return NotFound(new
             {
-                message = $"User with ID {id} was not found."
+                Message = $"User with ID {id} was not found."
             });
         }
 
@@ -68,9 +69,14 @@ public async Task<ActionResult<UserDto>> GetUser(int id)
 
     // POST: api/users
     [Authorize]
-[HttpPost]
-public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto dto)
-{
+    [HttpPost]
+    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var user = new User
         {
             Name = dto.Name,
@@ -81,7 +87,6 @@ public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto dto)
         };
 
         _context.Users.Add(user);
-
         await _context.SaveChangesAsync();
 
         var result = new UserDto
@@ -94,26 +99,26 @@ public async Task<ActionResult<UserDto>> CreateUser(CreateUserDto dto)
             Pincode = user.Pincode
         };
 
-        return CreatedAtAction(
-            nameof(GetUser),
-            new { id = user.Id },
-            result);
+        return CreatedAtAction(nameof(GetUser), new { id = user.Id }, result);
     }
 
     // PUT: api/users/{id}
     [Authorize]
-[HttpPut("{id}")]
-public async Task<ActionResult<UserDto>> UpdateUser(
-    int id,
-    UpdateUserDto dto)
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdateUser(int id, [FromBody] UpdateUserDto dto)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         var user = await _context.Users.FindAsync(id);
 
         if (user == null)
         {
             return NotFound(new
             {
-                message = $"User with ID {id} was not found."
+                Message = $"User with ID {id} was not found."
             });
         }
 
@@ -130,21 +135,20 @@ public async Task<ActionResult<UserDto>> UpdateUser(
 
     // DELETE: api/users/{id}
     [Authorize]
-[HttpDelete("{id}")]
-public async Task<IActionResult> DeleteUser(int id)
-{
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
         var user = await _context.Users.FindAsync(id);
 
         if (user == null)
         {
             return NotFound(new
             {
-                message = $"User with ID {id} was not found."
+                Message = $"User with ID {id} was not found."
             });
         }
 
         _context.Users.Remove(user);
-
         await _context.SaveChangesAsync();
 
         return NoContent();
