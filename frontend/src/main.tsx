@@ -6,9 +6,9 @@ import App from "./App.tsx";
 import "./index.css";
 import "./App.css";
 
-const domain = import.meta.env.VITE_AUTH0_DOMAIN as string | undefined;
-const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID as string | undefined;
-const audience = import.meta.env.VITE_AUTH0_AUDIENCE as string | undefined;
+const domain = (import.meta.env.VITE_AUTH0_DOMAIN as string) ?? "";
+const clientId = (import.meta.env.VITE_AUTH0_CLIENT_ID as string) ?? "";
+const audience = (import.meta.env.VITE_AUTH0_AUDIENCE as string) ?? undefined;
 
 if (!domain || !clientId) {
   console.error("Missing Auth0 configuration. Set VITE_AUTH0_DOMAIN and VITE_AUTH0_CLIENT_ID in your environment.");
