@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using UserDirectory.Api.Data;
 using UserDirectory.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,7 +9,6 @@ var configuration = builder.Configuration;
 var environment = builder.Environment;
 
 // Configure Serilog from configuration (console sink is used by default)
-using Serilog;
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(configuration)
     .Enrich.FromLogContext()
