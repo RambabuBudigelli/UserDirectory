@@ -76,7 +76,8 @@ namespace UserDirectory.Api.Tests
             Assert.True(updated);
 
             var fetched = await service.GetByIdAsync(created.Id);
-            Assert.Equal("Updated Name", fetched.Name);
+            Assert.NotNull(fetched);
+            Assert.Equal("Updated Name", fetched!.Name);
         }
 
         [Fact]
